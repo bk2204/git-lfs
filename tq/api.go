@@ -11,7 +11,7 @@ import (
 )
 
 type tqClient struct {
-	MaxRetries int
+	maxRetries int
 	*lfsapi.Client
 }
 
@@ -32,6 +32,12 @@ type BatchResponse struct {
 	endpoint            lfshttp.Endpoint
 }
 
+type BatchTransferAdapter interface {
+	Batch(remote string, bReq *batchRequest) (*BatchResponse, error)
+	MaxRetries() int
+	SetMaxRetries(n int)
+}
+
 func Batch(m *Manifest, dir Direction, remote string, remoteRef *git.Ref, objects []*Transfer) (*BatchResponse, error) {
 	if len(objects) == 0 {
 		return &BatchResponse{}, nil
@@ -43,6 +49,14 @@ func Batch(m *Manifest, dir Direction, remote string, remoteRef *git.Ref, object
 		TransferAdapterNames: m.GetAdapterNames(dir),
 		Ref:                  &batchRef{Name: remoteRef.Refspec()},
 	})
+}
+
+func (c *tqClient) MaxRetries() int {
+	return c.maxRetries
+}
+
+func (c *tqClient) SetMaxRetries(n int) {
+	c.maxRetries = n
 }
 
 func (c *tqClient) Batch(remote string, bReq *batchRequest) (*BatchResponse, error) {
@@ -71,7 +85,7 @@ func (c *tqClient) Batch(remote string, bReq *batchRequest) (*BatchResponse, err
 	tracerx.Printf("api: batch %d files", len(bReq.Objects))
 
 	req = c.Client.LogRequest(req, "lfs.batch")
-	res, err := c.DoAPIRequestWithAuth(remote, lfshttp.WithRetries(req, c.MaxRetries))
+	res, err := c.DoAPIRequestWithAuth(remote, lfshttp.WithRetries(req, c.MaxRetries()))
 	if err != nil {
 		tracerx.Printf("api error: %s", err)
 		return nil, errors.Wrap(err, "batch response")
