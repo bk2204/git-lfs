@@ -24,7 +24,7 @@ type SSHBatchTransferAdapter struct {
 }
 
 func (a *SSHBatchTransferAdapter) batchInternal(args []string, batchLines []string) (int, []string, []string, error) {
-	conn := a.transfer.Connection()
+	conn := a.transfer.Connection(0)
 	conn.Lock()
 	defer conn.Unlock()
 	err := conn.SendMessageWithLines("batch", args, batchLines)
@@ -196,7 +196,7 @@ func (a *SSHAdapter) download(t *Transfer, cb ProgressCallback) error {
 
 // doDownload starts a download. f is expected to be an existing file open in RW mode
 func (a *SSHAdapter) doDownload(t *Transfer, f *os.File, cb ProgressCallback) error {
-	conn := a.transfer.Connection()
+	conn := a.transfer.Connection(0)
 	args := a.argumentsForTransfer(t, "download")
 	conn.Lock()
 	defer conn.Unlock()
@@ -246,7 +246,7 @@ func (a *SSHAdapter) doDownload(t *Transfer, f *os.File, cb ProgressCallback) er
 }
 
 func (a *SSHAdapter) verifyUpload(t *Transfer) error {
-	conn := a.transfer.Connection()
+	conn := a.transfer.Connection(0)
 	args := a.argumentsForTransfer(t, "upload")
 	conn.Lock()
 	defer conn.Unlock()
@@ -268,7 +268,7 @@ func (a *SSHAdapter) verifyUpload(t *Transfer) error {
 }
 
 func (a *SSHAdapter) doUpload(t *Transfer, f *os.File, cb ProgressCallback) (int, []string, []string, error) {
-	conn := a.transfer.Connection()
+	conn := a.transfer.Connection(0)
 	args := a.argumentsForTransfer(t, "upload")
 
 	// Ensure progress callbacks made while uploading
