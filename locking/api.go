@@ -313,3 +313,53 @@ func NewUser(name string) *User {
 func (u *User) String() string {
 	return u.Name
 }
+
+type genericLockClient struct {
+	client      *lfsapi.Client
+	useTransfer bool
+	remote      string
+	operation   string
+	lclient     *lockClient
+}
+
+func newGenericLockClient(client *lfsapi.Client) *genericLockClient {
+	return &genericLockClient{
+		client:  client,
+		lclient: nil,
+	}
+}
+
+func (c *genericLockClient) getClient(remote, operation string) lockClient {
+	if c.lclient != nil && c.remote == remote && (!c.useTransfer || c.operation == operation) {
+		return *c.lclient
+	}
+	c.remote = remote
+	c.operation = operation
+	transfer := c.client.SSHTransfer(operation, remote)
+	var lclient lockClient
+	if transfer != nil {
+		c.useTransfer = true
+		lclient = &sshLockClient{transfer: transfer, Client: c.client}
+	} else {
+		c.useTransfer = false
+		lclient = &httpLockClient{Client: c.client}
+	}
+	c.lclient = &lclient
+	return lclient
+}
+
+func (c *genericLockClient) Lock(remote string, lockReq *lockRequest) (*lockResponse, int, error) {
+	return c.getClient(remote, "upload").Lock(remote, lockReq)
+}
+
+func (c *genericLockClient) Unlock(ref *git.Ref, remote, id string, force bool) (*unlockResponse, int, error) {
+	return c.getClient(remote, "upload").Unlock(ref, remote, id, force)
+}
+
+func (c *genericLockClient) Search(remote string, searchReq *lockSearchRequest) (*lockList, int, error) {
+	return c.getClient(remote, "download").Search(remote, searchReq)
+}
+
+func (c *genericLockClient) SearchVerifiable(remote string, vreq *lockVerifiableRequest) (*lockVerifiableList, int, error) {
+	return c.getClient(remote, "upload").SearchVerifiable(remote, vreq)
+}
