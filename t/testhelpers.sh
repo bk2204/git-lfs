@@ -810,3 +810,10 @@ setup_pure_ssh() {
       exit 0
   fi
 }
+
+ssh_remote() {
+  local reponame="$1"
+  local destination=$(urlify "$(canonical_path "$REMOTEDIR/$reponame.git")")
+  [ -z "${destination##/*}" ] || destination="/$destination"
+  echo "ssh://git@127.0.0.1$destination"
+}
