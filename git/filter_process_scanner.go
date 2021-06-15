@@ -180,7 +180,7 @@ func (o *FilterProcessScanner) readRequest() (*Request, error) {
 
 	req := &Request{
 		Header:  make(map[string]string),
-		Payload: pktline.NewPktlineReaderFromPktline(o.pl, 32768),
+		Payload: pktline.NewPktlineReaderFromPktline(o.pl, 65536),
 	}
 
 	for _, pair := range requestList {
