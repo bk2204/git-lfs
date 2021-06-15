@@ -51,8 +51,11 @@ func (c *Client) Context() lfshttp.Context {
 // server is not using an SSH remote or the git-lfs-transfer style of SSH
 // remote.
 func (c *Client) SSHTransfer(operation, remote string) *ssh.SSHTransfer {
+	if len(operation) == 0 {
+		return nil
+	}
 	endpoint := c.Endpoints.Endpoint(operation, remote)
-	if len(operation) > 0 && len(endpoint.SSHMetadata.UserAndHost) > 0 {
+	if len(endpoint.SSHMetadata.UserAndHost) > 0 {
 		ctx := c.Context()
 		tracerx.Printf("attempting pure SSH protocol connection")
 		sshTransfer, err := ssh.NewSSHTransfer(ctx.OSEnv(), ctx.GitEnv(), &endpoint.SSHMetadata, operation)
