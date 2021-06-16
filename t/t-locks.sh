@@ -80,8 +80,9 @@ begin_test "list a single lock (SSH; git-lfs-transfer)"
 (
   set -e
 
-  reponame="locks-list-ssh-pure"
   setup_pure_ssh
+
+  reponame="locks-list-ssh-pure"
   setup_remote_repo_with_file "$reponame" "f.dat"
   clone_repo "$reponame" "$reponame"
 
