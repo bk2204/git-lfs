@@ -27,7 +27,7 @@ func (a *SSHBatchTransferAdapter) batchInternal(args []string, batchLines []stri
 	conn := a.transfer.Connection()
 	conn.Lock()
 	defer conn.Unlock()
-	err := conn.SendMessageWithArguments("batch", args, batchLines)
+	err := conn.SendMessageWithLines("batch", args, batchLines)
 	if err != nil {
 		return 0, nil, nil, errors.Wrap(err, "batch request")
 	}
