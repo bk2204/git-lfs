@@ -106,7 +106,7 @@ func (a *SSHBatchTransferAdapter) Batch(remote string, bReq *batchRequest) (*Bat
 				} else if strings.HasPrefix(entry, "expires-at=") {
 					transfer.Actions[entries[2]].ExpiresAt, err = time.Parse(time.RFC3339, entry[11:])
 					if err != nil {
-						return nil, fmt.Errorf("batch response: invalid expires-in: %s", entry)
+						return nil, fmt.Errorf("batch response: invalid expires-at: %s", entry)
 					}
 				}
 			}
