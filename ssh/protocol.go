@@ -95,7 +95,7 @@ func (conn *PktlineConnection) SendMessage(command string, args []string, delim 
 	return conn.pl.WriteFlush()
 }
 
-func (conn *PktlineConnection) SendMessageWithArguments(command string, args []string, lines []string) error {
+func (conn *PktlineConnection) SendMessageWithLines(command string, args []string, lines []string) error {
 	err := conn.pl.WritePacketText(command)
 	if err != nil {
 		return err
