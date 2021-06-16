@@ -87,18 +87,11 @@ func autodetectVariant(osEnv config.Environment, gitEnv config.Environment, base
 
 func getVariant(osEnv config.Environment, gitEnv config.Environment, basessh string) sshVariant {
 	variant, ok := osEnv.Get("GIT_SSH_VARIANT")
-	autodetect, val := findVariant(variant)
-	if ok {
-		if autodetect {
-			return autodetectVariant(osEnv, gitEnv, basessh)
-		}
-		return val
+	if !ok {
+		variant, ok = gitEnv.Get("ssh.variant")
 	}
-	variant, ok = gitEnv.Get("ssh.variant")
-	if autodetect, val := findVariant(variant); ok {
-		if autodetect {
-			return autodetectVariant(osEnv, gitEnv, basessh)
-		}
+	autodetect, val := findVariant(variant)
+	if ok && !autodetect {
 		return val
 	}
 	return autodetectVariant(osEnv, gitEnv, basessh)
