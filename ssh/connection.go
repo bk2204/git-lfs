@@ -87,7 +87,7 @@ func (tr *SSHTransfer) SetConnectionCount(n int) error {
 	return tr.setConnectionCount(n)
 }
 
-// SetConnectionCountAtLeast  sets the number of connections to be not less than
+// SetConnectionCountAtLeast sets the number of connections to be not less than
 // the specified number.
 func (tr *SSHTransfer) SetConnectionCountAtLeast(n int) error {
 	tr.lock.Lock()
