@@ -93,7 +93,7 @@ func (tr *SSHTransfer) SetConnectionCountAtLeast(n int) error {
 	tr.lock.Lock()
 	defer tr.lock.Unlock()
 	count := len(tr.conn)
-	if n < count {
+	if n <= count {
 		return nil
 	}
 	return tr.setConnectionCount(n)
