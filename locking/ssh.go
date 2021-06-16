@@ -66,7 +66,6 @@ const (
 func (c *sshLockClient) parseListLockResponse(status int, args []string, text []string) (all []Lock, ours []Lock, theirs []Lock, nextCursor string, message string, err error) {
 	type lockData struct {
 		lock Lock
-		id   string
 		who  owner
 	}
 	locks := make(map[string]*lockData)
@@ -82,11 +81,11 @@ func (c *sshLockClient) parseListLockResponse(status int, args []string, text []
 			if len(values) < 2 || (values[0] != "lock" && len(values) < 3) {
 				return nil, nil, nil, "", "", fmt.Errorf("lock response: invalid response: %q", entry)
 			}
-			if values[0] != "lock" && (last == nil || last.id != values[1]) {
+			if values[0] != "lock" && (last == nil || last.lock.Id != values[1]) {
 				return nil, nil, nil, "", "", fmt.Errorf("lock response: interspersed response: %q", entry)
 			}
 			if values[0] == "lock" {
-				locks[values[1]] = &lockData{id: values[1]}
+				locks[values[1]] = &lockData{}
 				last = locks[values[1]]
 				last.lock.Id = values[1]
 			} else if values[0] == "path" {
