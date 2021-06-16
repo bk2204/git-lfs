@@ -111,20 +111,20 @@ func findRuntimeDir(osEnv config.Environment) string {
 
 func getControlDir(osEnv config.Environment) (string, error) {
 	dir := findRuntimeDir(osEnv)
-	if dir != "" {
-		dir = filepath.Join(dir, "git-lfs")
-		err := os.Mkdir(dir, 0700)
-		if err != nil {
-			// Ideally we would use errors.Is here to check against
-			// os.ErrExist, but that's not available on Go 1.11.
-			perr, ok := err.(*os.PathError)
-			if !ok || perr.Err != syscall.EEXIST {
-				return ioutil.TempDir("", "sock-*")
-			}
-		}
-		return dir, nil
+	if dir == "" {
+		return ioutil.TempDir("", "sock-*")
 	}
-	return ioutil.TempDir("", "sock-*")
+	dir = filepath.Join(dir, "git-lfs")
+	err := os.Mkdir(dir, 0700)
+	if err != nil {
+		// Ideally we would use errors.Is here to check against
+		// os.ErrExist, but that's not available on Go 1.11.
+		perr, ok := err.(*os.PathError)
+		if !ok || perr.Err != syscall.EEXIST {
+			return ioutil.TempDir("", "sock-*")
+		}
+	}
+	return dir, nil
 }
 
 // Return the executable name for ssh on this machine and the base args
