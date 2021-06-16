@@ -101,16 +101,14 @@ func (tr *SSHTransfer) SetConnectionCountAtLeast(n int) error {
 
 func (tr *SSHTransfer) setConnectionCount(n int) error {
 	count := len(tr.conn)
-	if n == count {
-		return nil
-	} else if n < count {
-		var err error
+	if n < count {
 		for _, item := range tr.conn[n:count] {
-			err = item.End()
+			if err := item.End(); err != nil {
+				return err
+			}
 		}
 		tr.conn = tr.conn[0:n]
-		return err
-	} else {
+	} else if n > count {
 		for i := count; i < n; i++ {
 			conn, err := startConnection(tr.osEnv, tr.gitEnv, tr.meta, tr.operation)
 			if err != nil {
@@ -118,6 +116,6 @@ func (tr *SSHTransfer) setConnectionCount(n int) error {
 			}
 			tr.conn = append(tr.conn, conn)
 		}
-		return nil
 	}
+	return nil
 }
