@@ -804,6 +804,8 @@ setup_pure_ssh() {
     fi
   elif [ "$GIT_DEFAULT_HASH" = sha256 ]
   then
+      # Scutiger's git-lfs-transfer uses libgit2, which doesn't yet do SHA-256
+      # repos.
       echo "Using SHA-256 repositories.  Skipping..."
       exit 0
   fi
