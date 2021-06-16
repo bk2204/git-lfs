@@ -78,27 +78,39 @@ func (c *sshLockClient) parseListLockResponse(status int, args []string, text []
 		}
 		for _, entry := range text {
 			values := strings.SplitN(entry, " ", 3)
-			if len(values) < 2 || (values[0] != "lock" && len(values) < 3) {
+			var cmd string
+			if len(values) > 0 {
+				cmd = values[0]
+			}
+			if cmd == "lock" {
+				if len(values) != 2 {
+					return nil, nil, nil, "", "", fmt.Errorf("lock response: invalid response: %q", entry)
+				} else if last != nil && (last.lock.Path == "" || last.lock.Owner == nil ||
+					last.lock.LockedAt.IsZero() || last.who == ownerUnknown) {
+					return nil, nil, nil, "", "", fmt.Errorf("lock response: incomplete lock data")
+				}
+				id := values[1]
+				last = &lockData{who: ownerUnknown}
+				last.lock.Id = id
+				locks[id] = last
+			} else if len(values) != 3 {
 				return nil, nil, nil, "", "", fmt.Errorf("lock response: invalid response: %q", entry)
-			}
-			if values[0] != "lock" && (last == nil || last.lock.Id != values[1]) {
+			} else if last == nil || last.lock.Id != values[1] {
 				return nil, nil, nil, "", "", fmt.Errorf("lock response: interspersed response: %q", entry)
-			}
-			if values[0] == "lock" {
-				locks[values[1]] = &lockData{}
-				last = locks[values[1]]
-				last.lock.Id = values[1]
-			} else if values[0] == "path" {
-				last.lock.Path = values[2]
-			} else if values[0] == "ownername" {
-				last.lock.Owner = &User{}
-				last.lock.Owner.Name = values[2]
-			} else if values[0] == "owner" {
-				last.who = owner(values[2])
-			} else if values[0] == "locked-at" {
-				last.lock.LockedAt, err = time.Parse(time.RFC3339, values[2])
-				if err != nil {
-					return nil, nil, nil, "", "", fmt.Errorf("lock response: invalid locked-at: %s", entry)
+			} else {
+				switch cmd {
+				case "path":
+					last.lock.Path = values[2]
+				case "owner":
+					last.who = owner(values[2])
+				case "ownername":
+					last.lock.Owner = &User{}
+					last.lock.Owner.Name = values[2]
+				case "locked-at":
+					last.lock.LockedAt, err = time.Parse(time.RFC3339, values[2])
+					if err != nil {
+						return nil, nil, nil, "", "", fmt.Errorf("lock response: invalid locked-at: %s", entry)
+					}
 				}
 			}
 		}
