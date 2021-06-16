@@ -76,7 +76,7 @@ func (a *SSHBatchTransferAdapter) Batch(remote string, bReq *batchRequest) (*Bat
 	for _, line := range lines {
 		entries := strings.Split(line, " ")
 		if len(entries) < 3 {
-			return nil, fmt.Errorf("batch response: malformed response")
+			return nil, fmt.Errorf("batch response: malformed response: %q", line)
 		}
 		length := len(bRes.Objects)
 		if length == 0 || bRes.Objects[length-1].Oid != entries[0] {
