@@ -86,12 +86,14 @@ func main() {
 	authLine := strings.Split(os.Args[offset+1], " ")
 	if len(authLine) < 2 {
 		fmt.Fprintf(os.Stderr, "bad git-lfs-authenticate line: %s\nargs: %v", authLine, os.Args)
+		os.Exit(1)
 	}
 
 	if authLine[0] == "git-lfs-transfer" || authLine[0] == "git-upload-pack" || authLine[0] == "git-receive-pack" {
 		err := spawnCommand(os.Args[offset+1])
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error running command %q: %v", authLine[0], err)
+			os.Exit(1)
 		}
 		return
 	}
