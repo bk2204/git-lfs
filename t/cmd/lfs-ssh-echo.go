@@ -46,6 +46,10 @@ func spawnCommand(command string) error {
 func main() {
 	// expect args:
 	//   lfs-ssh-echo -p PORT -- git@127.0.0.1 git-lfs-authenticate REPO OPERATION
+	//   lfs-ssh-echo -p PORT -- git@127.0.0.1 git-lfs-transfer REPO OPERATION
+	//   lfs-ssh-echo -- git@127.0.0.1 git-lfs-transfer REPO OPERATION
+	//   lfs-ssh-echo git@127.0.0.1 git-upload-pack REPO
+	//   lfs-ssh-echo git@127.0.0.1 git-receive-pack REPO
 	if len(os.Args) < 3 {
 		fmt.Fprintf(os.Stderr, "got %d args: %v", len(os.Args), os.Args)
 		os.Exit(1)
