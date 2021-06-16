@@ -170,24 +170,18 @@ func (conn *PktlineConnection) ReadStatus(delim bool) (int, []string, error) {
 		case seenDelim:
 			args = append(args, s)
 		default:
-			if strings.HasPrefix(s, "status ") {
-				status, err = strconv.Atoi(s[7:])
-				if err != nil {
-					return 0, nil, errors.NewProtocolError(fmt.Sprintf("expected status line, got %q", s), err)
-				}
-				if !delim {
-					seenDelim = true
-				}
-			}
 			if !seenStatus {
 				seenStatus = true
 				ok := false
 				if strings.HasPrefix(s, "status ") {
 					status, err = strconv.Atoi(s[7:])
-					ok = err != nil
+					ok = err == nil
 				}
-				if ok {
+				if !ok {
 					return 0, nil, errors.NewProtocolError(fmt.Sprintf("expected status line, got %q", s), err)
+				}
+				if !delim {
+					seenDelim = true
 				}
 			}
 			// Otherwise, this is an optional argument which we are
@@ -220,9 +214,9 @@ func (conn *PktlineConnection) ReadStatusWithData() (int, []string, io.Reader, e
 				ok := false
 				if strings.HasPrefix(s, "status ") {
 					status, err = strconv.Atoi(s[7:])
-					ok = err != nil
+					ok = err == nil
 				}
-				if ok {
+				if !ok {
 					return 0, nil, nil, errors.NewProtocolError(fmt.Sprintf("expected status line, got %q", s), err)
 				}
 			} else {
@@ -262,9 +256,9 @@ func (conn *PktlineConnection) ReadStatusWithArguments() (int, []string, []strin
 				ok := false
 				if strings.HasPrefix(s, "status ") {
 					status, err = strconv.Atoi(s[7:])
-					ok = err != nil
+					ok = err == nil
 				}
-				if ok {
+				if !ok {
 					return 0, nil, nil, errors.NewProtocolError(fmt.Sprintf("expected status line, got %q", s), err)
 				}
 			} else {
