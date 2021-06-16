@@ -314,37 +314,39 @@ func (u *User) String() string {
 	return u.Name
 }
 
+type lockClientInfo struct {
+	remote    string
+	operation string
+}
+
 type genericLockClient struct {
-	client      *lfsapi.Client
-	useTransfer bool
-	remote      string
-	operation   string
-	lclient     *lockClient
+	client   *lfsapi.Client
+	lclients map[lockClientInfo]lockClient
 }
 
 func newGenericLockClient(client *lfsapi.Client) *genericLockClient {
 	return &genericLockClient{
-		client:  client,
-		lclient: nil,
+		client:   client,
+		lclients: make(map[lockClientInfo]lockClient),
 	}
 }
 
 func (c *genericLockClient) getClient(remote, operation string) lockClient {
-	if c.lclient != nil && c.remote == remote && (!c.useTransfer || c.operation == operation) {
-		return *c.lclient
+	info := lockClientInfo{
+		remote:    remote,
+		operation: operation,
 	}
-	c.remote = remote
-	c.operation = operation
+	if client := c.lclients[info]; client != nil {
+		return client
+	}
 	transfer := c.client.SSHTransfer(operation, remote)
 	var lclient lockClient
 	if transfer != nil {
-		c.useTransfer = true
 		lclient = &sshLockClient{transfer: transfer, Client: c.client}
 	} else {
-		c.useTransfer = false
 		lclient = &httpLockClient{Client: c.client}
 	}
-	c.lclient = &lclient
+	c.lclients[info] = lclient
 	return lclient
 }
 
