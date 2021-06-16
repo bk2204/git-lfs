@@ -23,22 +23,30 @@ func (c *sshLockClient) parseLockResponse(status int, args []string, text []stri
 	var lock *Lock
 	var message string
 	var err error
+	seen := make(map[string]struct{})
 	if status >= 200 && status <= 299 || status == 409 {
 		lock = &Lock{}
 		for _, entry := range args {
 			if strings.HasPrefix(entry, "id=") {
 				lock.Id = entry[3:]
+				seen["id"] = struct{}{}
 			} else if strings.HasPrefix(entry, "path=") {
 				lock.Path = entry[5:]
+				seen["path"] = struct{}{}
 			} else if strings.HasPrefix(entry, "ownername=") {
 				lock.Owner = &User{}
 				lock.Owner.Name = entry[10:]
+				seen["ownername"] = struct{}{}
 			} else if strings.HasPrefix(entry, "locked-at=") {
 				lock.LockedAt, err = time.Parse(time.RFC3339, entry[10:])
 				if err != nil {
 					return lock, "", fmt.Errorf("lock response: invalid locked-at: %s", entry)
 				}
+				seen["locked-at"] = struct{}{}
 			}
+		}
+		if len(seen) != 4 {
+			return nil, "", fmt.Errorf("incomplete fields for lock")
 		}
 	}
 	if status > 299 && len(text) > 0 {
