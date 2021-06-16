@@ -155,7 +155,7 @@ func (conn *PktlineConnection) ReadStatus(delim bool) (int, []string, error) {
 	for {
 		s, pktLen, err := conn.pl.ReadPacketTextWithLength()
 		if err != nil {
-			return 0, nil, nil
+			return 0, nil, errors.NewProtocolError("error reading packet", err)
 		}
 		switch {
 		case pktLen == 0:
@@ -205,7 +205,7 @@ func (conn *PktlineConnection) ReadStatusWithData() (int, []string, io.Reader, e
 	for {
 		s, pktLen, err := conn.pl.ReadPacketTextWithLength()
 		if err != nil {
-			return 0, nil, nil, nil
+			return 0, nil, nil, errors.NewProtocolError("error reading packet", err)
 		}
 		if pktLen == 0 {
 			if status == 0 {
@@ -244,7 +244,7 @@ func (conn *PktlineConnection) ReadStatusWithArguments() (int, []string, []strin
 	for {
 		s, pktLen, err := conn.pl.ReadPacketTextWithLength()
 		if err != nil {
-			return 0, nil, nil, err
+			return 0, nil, nil, errors.NewProtocolError("error reading packet", err)
 		}
 		switch {
 		case pktLen == 0:
