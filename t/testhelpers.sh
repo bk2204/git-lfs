@@ -170,6 +170,24 @@ assert_server_object() {
   }
 }
 
+check_server_lock_ssh() {
+  local reponame="$1"
+  local id="$2"
+  local refspec="$3"
+  local destination="$(canonical_path "$REMOTEDIR/$reponame.git")"
+
+  (
+    pktize_text 'version 1'
+    pktize_flush
+    pktize_text 'list-lock'
+    pktize_text "id=$id"
+    pktize_text "refname=$refname"
+    pktize_flush
+    pktize_text 'quit'
+    pktize_flush
+  ) | lfs-ssh-echo git@127.0.0.1 "git-lfs-transfer '$destination' download" 2>&1
+}
+
 # This asserts the lock path and returns the lock ID by parsing the response of
 #
 #   git lfs lock --json <path>
@@ -211,18 +229,8 @@ assert_server_lock_ssh() {
   local reponame="$1"
   local id="$2"
   local refspec="$3"
-  local destination="$(canonical_path "$REMOTEDIR/$reponame.git")"
 
-  (
-    pktize_text 'version 1'
-    pktize_flush
-    pktize_text 'list-lock'
-    pktize_text "id=$id"
-    pktize_text "refname=$refname"
-    pktize_flush
-    pktize_text 'quit'
-    pktize_flush
-  ) | lfs-ssh-echo git@127.0.0.1 "git-lfs-transfer '$destination' download" 2>&1 |
+  check_server_lock_ssh "$reponame" "$id" "$refspec" |
     tee output.log
 
   grep "status 200" output.log
@@ -255,16 +263,7 @@ refute_server_lock_ssh() {
   local refspec="$3"
   local destination="$(canonical_path "$REMOTEDIR/$reponame.git")"
 
-  (
-    pktize_text 'version 1'
-    pktize_flush
-    pktize_text 'list-lock'
-    pktize_text "id=$id"
-    pktize_text "refname=$refname"
-    pktize_flush
-    pktize_text 'quit'
-    pktize_flush
-  ) | lfs-ssh-echo git@127.0.0.1 "git-lfs-transfer '$destination' download" 2>&1 |
+  check_server_lock_ssh "$reponame" "$id" "$refspec" |
     tee output.log
 
   grep "status 200" output.log
