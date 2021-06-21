@@ -191,14 +191,7 @@ func (a *SSHAdapter) download(t *Transfer, cb ProgressCallback) error {
 		os.Remove(tmpName)
 	}()
 
-	err = a.downloadOne(t, cb, f)
-
-	if err != nil {
-		f.Close()
-		os.Remove(tmpName)
-	}
-
-	return err
+	return a.downloadOne(t, cb, f)
 }
 
 // download starts a download. dlFile is expected to be an existing file open in RW mode
