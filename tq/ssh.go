@@ -378,13 +378,13 @@ func (a *SSHAdapter) Trace(format string, args ...interface{}) {
 
 func configureSSHAdapter(m *Manifest) {
 	m.RegisterNewAdapterFunc("ssh", Upload, func(name string, dir Direction) Adapter {
-		bu := &SSHAdapter{newAdapterBase(m.fs, name, dir, nil), nil, m.sshTransfer}
-		bu.transferImpl = bu
-		return bu
+		a := &SSHAdapter{newAdapterBase(m.fs, name, dir, nil), nil, m.sshTransfer}
+		a.transferImpl = a
+		return a
 	})
 	m.RegisterNewAdapterFunc("ssh", Download, func(name string, dir Direction) Adapter {
-		bu := &SSHAdapter{newAdapterBase(m.fs, name, dir, nil), nil, m.sshTransfer}
-		bu.transferImpl = bu
-		return bu
+		a := &SSHAdapter{newAdapterBase(m.fs, name, dir, nil), nil, m.sshTransfer}
+		a.transferImpl = a
+		return a
 	})
 }
