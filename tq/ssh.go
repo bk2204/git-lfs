@@ -191,11 +191,11 @@ func (a *SSHAdapter) download(t *Transfer, cb ProgressCallback) error {
 		os.Remove(tmpName)
 	}()
 
-	return a.downloadOne(t, cb, f)
+	return a.doDownload(t, f, cb)
 }
 
-// download starts a download. dlFile is expected to be an existing file open in RW mode
-func (a *SSHAdapter) downloadOne(t *Transfer, cb ProgressCallback, dlFile *os.File) error {
+// doDownload starts a download. f is expected to be an existing file open in RW mode
+func (a *SSHAdapter) doDownload(t *Transfer, f *os.File, cb ProgressCallback) error {
 	conn := a.transfer.Connection()
 	args := a.argumentsForTransfer(t, "download")
 	conn.Lock()
@@ -215,7 +215,7 @@ func (a *SSHAdapter) downloadOne(t *Transfer, cb ProgressCallback, dlFile *os.Fi
 		return errors.NewRetriableError(fmt.Errorf("got status %d when fetching OID %s", status, t.Oid))
 	}
 
-	dlfilename := dlFile.Name()
+	dlfilename := f.Name()
 	// Wrap callback to give name context
 	ccb := func(totalSize int64, readSoFar int64, readSinceLast int) error {
 		if cb != nil {
@@ -224,7 +224,7 @@ func (a *SSHAdapter) downloadOne(t *Transfer, cb ProgressCallback, dlFile *os.Fi
 		return nil
 	}
 	hasher := tools.NewHashingReader(data)
-	written, err := tools.CopyWithCallback(dlFile, hasher, t.Size, ccb)
+	written, err := tools.CopyWithCallback(f, hasher, t.Size, ccb)
 	if err != nil {
 		return errors.Wrapf(err, "cannot write data to tempfile %q", dlfilename)
 	}
@@ -233,7 +233,7 @@ func (a *SSHAdapter) downloadOne(t *Transfer, cb ProgressCallback, dlFile *os.Fi
 		return fmt.Errorf("expected OID %s, got %s after %d bytes written", t.Oid, actual, written)
 	}
 
-	if err := dlFile.Close(); err != nil {
+	if err := f.Close(); err != nil {
 		return fmt.Errorf("can't close tempfile %q: %v", dlfilename, err)
 	}
 
