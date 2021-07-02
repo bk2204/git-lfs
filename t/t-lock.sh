@@ -348,7 +348,6 @@ begin_test "lock with git-lfs-transfer"
   clone_repo "$reponame" "$reponame"
 
   sshurl=$(ssh_remote "$reponame")
-  echo $sshurl
   git config lfs.url "$sshurl"
 
   GIT_TRACE_PACKET=1 git lfs lock --json "f.dat" | tee lock.log
