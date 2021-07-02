@@ -45,11 +45,11 @@ func spawnCommand(command string) error {
 
 func main() {
 	// expect args:
-	//   lfs-ssh-echo -p PORT -- git@127.0.0.1 git-lfs-authenticate REPO OPERATION
-	//   lfs-ssh-echo -p PORT -- git@127.0.0.1 git-lfs-transfer REPO OPERATION
-	//   lfs-ssh-echo -- git@127.0.0.1 git-lfs-transfer REPO OPERATION
-	//   lfs-ssh-echo git@127.0.0.1 git-upload-pack REPO
-	//   lfs-ssh-echo git@127.0.0.1 git-receive-pack REPO
+	//   lfs-ssh-echo -p PORT -- git@127.0.0.1 "git-lfs-authenticate REPO OPERATION"
+	//   lfs-ssh-echo -p PORT -- git@127.0.0.1 "git-lfs-transfer REPO OPERATION"
+	//   lfs-ssh-echo -- git@127.0.0.1 "git-lfs-transfer REPO OPERATION"
+	//   lfs-ssh-echo git@127.0.0.1 "git-upload-pack REPO"
+	//   lfs-ssh-echo git@127.0.0.1 "git-receive-pack REPO"
 	if len(os.Args) < 3 {
 		fmt.Fprintf(os.Stderr, "got %d args: %v", len(os.Args), os.Args)
 		os.Exit(1)
@@ -82,23 +82,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	// just "git-lfs-authenticate REPO OPERATION"
-	authLine := strings.Split(os.Args[offset+1], " ")
-	if len(authLine) < 2 {
-		fmt.Fprintf(os.Stderr, "bad git-lfs-authenticate line: %s\nargs: %v", authLine, os.Args)
+	// just "git-lfs-authenticate REPO OPERATION" or "git-(upload|receive)-pack REPO"
+	remoteCmd := strings.Split(os.Args[offset+1], " ")
+	if len(remoteCmd) < 2 {
+		fmt.Fprintf(os.Stderr, "bad git-lfs-authenticate line: %s\nargs: %v", remoteCmd, os.Args)
 		os.Exit(1)
 	}
 
-	if authLine[0] == "git-lfs-transfer" || authLine[0] == "git-upload-pack" || authLine[0] == "git-receive-pack" {
+	if remoteCmd[0] == "git-lfs-transfer" || remoteCmd[0] == "git-upload-pack" || remoteCmd[0] == "git-receive-pack" {
 		err := spawnCommand(os.Args[offset+1])
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error running command %q: %v", authLine[0], err)
+			fmt.Fprintf(os.Stderr, "error running command %q: %v", remoteCmd[0], err)
 			os.Exit(1)
 		}
 		return
 	}
 
-	repo := authLine[1]
+	repo := remoteCmd[1]
 
 	r := &sshResponse{
 		Href: fmt.Sprintf("http://127.0.0.1:%s/%s.git/info/lfs", os.Args[2], repo),
