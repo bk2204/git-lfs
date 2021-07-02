@@ -11,7 +11,6 @@ begin_test "ssh with proxy command in lfs.url"
   clone_repo "$reponame" "$reponame"
 
   sshurl="${GITSERVER/http:\/\//ssh://-oProxyCommand=ssh-proxy-test/}/$reponame"
-  echo $sshurl
   git config lfs.url "$sshurl"
 
   contents="test"
