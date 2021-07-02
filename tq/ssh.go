@@ -174,7 +174,6 @@ func (a *SSHAdapter) DoTransfer(ctx interface{}, t *Transfer, cb ProgressCallbac
 }
 
 func (a *SSHAdapter) download(t *Transfer, conn *ssh.PktlineConnection, cb ProgressCallback) error {
-	// Reserve a temporary filename. We need to make sure nobody operates on the file simultaneously with us.
 	rel, err := t.Rel("download")
 	if err != nil {
 		return err
@@ -182,6 +181,7 @@ func (a *SSHAdapter) download(t *Transfer, conn *ssh.PktlineConnection, cb Progr
 	if rel == nil {
 		return errors.Errorf("No download action for object: %s", t.Oid)
 	}
+	// Reserve a temporary filename. We need to make sure nobody operates on the file simultaneously with us.
 	f, err := tools.TempFile(a.tempDir(), t.Oid, a.fs)
 	if err != nil {
 		return err
