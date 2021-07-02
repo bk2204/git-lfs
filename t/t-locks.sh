@@ -59,7 +59,6 @@ begin_test "list a single lock (SSH; git-lfs-authenticate)"
   clone_repo "$reponame" "$reponame"
 
   sshurl="${GITSERVER/http:\/\//ssh://git@}/$reponame"
-  echo $sshurl
   git config lfs.url "$sshurl"
 
   git lfs lock --json "f.dat" | tee lock.log
