@@ -43,12 +43,8 @@ func (conn *PktlineConnection) End() error {
 	return err
 }
 
-func (conn *PktlineConnection) readCapabilities() ([]string, error) {
-	return conn.pl.ReadPacketList()
-}
-
 func (conn *PktlineConnection) negotiateVersion() error {
-	pkts, err := conn.readCapabilities()
+	pkts, err := conn.pl.ReadPacketList()
 	if err != nil {
 		return errors.NewProtocolError("Unable to negotiate version with remote side (unable to read capabilities)", err)
 	}
