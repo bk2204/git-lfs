@@ -104,7 +104,6 @@ The server must respond with success and then terminate the connection:
 
 ```
 quit-response = PKT-LINE("status 200" LF)
-                delim-pkt
                 flush-pkt
 ```
 
