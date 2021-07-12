@@ -206,7 +206,7 @@ func (a *SSHAdapter) doDownload(t *Transfer, conn *ssh.PktlineConnection, f *os.
 	if err != nil {
 		return err
 	}
-	status, args, data, err := conn.ReadStatusWithData()
+	status, _, data, err := conn.ReadStatusWithData()
 	if err != nil {
 		return err
 	}
