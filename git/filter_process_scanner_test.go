@@ -127,7 +127,7 @@ func TestFilterProcessScannerReadsRequestHeadersAndPayload(t *testing.T) {
 
 func TestFilterProcessScannerRejectsInvalidHeaderPackets(t *testing.T) {
 	from := bytes.NewBuffer([]byte{
-		0x30, 0x30, 0x30, 0x33, // 0004 (invalid packet length)
+		0x30, 0x30, 0x30, 0x33, // 0003 (invalid packet length)
 	})
 
 	req, err := readRequest(NewFilterProcessScanner(from, nil))
