@@ -71,7 +71,7 @@ func (conn *PktlineConnection) negotiateVersion() error {
 	return nil
 }
 
-func (conn *PktlineConnection) SendMessage(command string, args []string, delim bool) error {
+func (conn *PktlineConnection) SendMessage(command string, lines []string, delim bool) error {
 	err := conn.pl.WritePacketText(command)
 	if err != nil {
 		return err
@@ -82,8 +82,8 @@ func (conn *PktlineConnection) SendMessage(command string, args []string, delim 
 			return err
 		}
 	}
-	for _, arg := range args {
-		err = conn.pl.WritePacketText(arg)
+	for _, line := range lines {
+		err = conn.pl.WritePacketText(line)
 		if err != nil {
 			return err
 		}
