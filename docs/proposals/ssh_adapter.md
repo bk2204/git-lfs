@@ -262,7 +262,6 @@ The `lock` command may be used to lock a file on a ref:
 ```
 lock-request = lock-command
                *argument
-               delim-pkt
                flush-pkt
 lock-command = PKT-LINE("lock" LF)
 ```
