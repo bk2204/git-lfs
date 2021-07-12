@@ -158,7 +158,7 @@ func (conn *PktlineConnection) ReadStatus(delim bool) (int, []string, error) {
 		}
 		switch {
 		case pktLen == 0:
-			if status == 0 {
+			if !seenStatus {
 				return 0, nil, errors.NewProtocolError("no status seen", nil)
 			} else if !seenDelim {
 				return 0, nil, errors.NewProtocolError("no delimiter seen", nil)
@@ -200,7 +200,7 @@ func (conn *PktlineConnection) ReadStatusWithData() (int, []string, io.Reader, e
 			return 0, nil, nil, errors.NewProtocolError("error reading packet", err)
 		}
 		if pktLen == 0 {
-			if status == 0 {
+			if !seenStatus {
 				return 0, nil, nil, errors.NewProtocolError("no status seen", nil)
 			}
 			return status, args, nil, nil
@@ -238,7 +238,7 @@ func (conn *PktlineConnection) ReadStatusWithArguments() (int, []string, []strin
 		}
 		switch {
 		case pktLen == 0:
-			if status == 0 {
+			if !seenStatus {
 				return 0, nil, nil, errors.NewProtocolError("no status seen", nil)
 			}
 			return status, args, lines, nil
