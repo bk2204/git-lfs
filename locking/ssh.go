@@ -73,6 +73,9 @@ func (c *sshLockClient) parseListLockResponse(status int, args []string, text []
 	if status >= 200 && status <= 299 {
 		for _, entry := range args {
 			if strings.HasPrefix(entry, "next-cursor=") {
+				if len(nextCursor) > 0 {
+					return nil, nil, nil, "", "", fmt.Errorf("lock response: multiple next-cursor responses")
+				}
 				nextCursor = entry[12:]
 			}
 		}
