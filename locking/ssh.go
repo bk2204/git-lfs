@@ -63,11 +63,16 @@ const (
 	ownerUnknown = owner("")
 )
 
+type lockData struct {
+	lock Lock
+	who  owner
+}
+
+func (c *sshLockClient) lockDataIsIncomplete(data *lockData) bool {
+	return data.lock.Path == "" || data.lock.Owner == nil || data.lock.LockedAt.IsZero() || data.who == ownerUnknown
+}
+
 func (c *sshLockClient) parseListLockResponse(status int, args []string, text []string) (all []Lock, ours []Lock, theirs []Lock, nextCursor string, message string, err error) {
-	type lockData struct {
-		lock Lock
-		who  owner
-	}
 	locks := make(map[string]*lockData)
 	var last *lockData
 	if status >= 200 && status <= 299 {
@@ -88,8 +93,7 @@ func (c *sshLockClient) parseListLockResponse(status int, args []string, text []
 			if cmd == "lock" {
 				if len(values) != 2 {
 					return nil, nil, nil, "", "", fmt.Errorf("lock response: invalid response: %q", entry)
-				} else if last != nil && (last.lock.Path == "" || last.lock.Owner == nil ||
-					last.lock.LockedAt.IsZero() || last.who == ownerUnknown) {
+				} else if last != nil && c.lockDataIsIncomplete(last) {
 					return nil, nil, nil, "", "", fmt.Errorf("lock response: incomplete lock data")
 				}
 				id := values[1]
@@ -116,6 +120,9 @@ func (c *sshLockClient) parseListLockResponse(status int, args []string, text []
 					}
 				}
 			}
+		}
+		if last != nil && c.lockDataIsIncomplete(last) {
+			return nil, nil, nil, "", "", fmt.Errorf("lock response: incomplete lock data")
 		}
 		for _, lock := range locks {
 			all = append(all, lock.lock)
