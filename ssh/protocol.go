@@ -134,7 +134,10 @@ func (conn *PktlineConnection) SendMessageWithData(command string, args []string
 	for {
 		n, err := data.Read(buf)
 		if n > 0 {
-			conn.pl.WritePacket(buf[0:n])
+			err := conn.pl.WritePacket(buf[0:n])
+			if err != nil {
+				return err
+			}
 		}
 		if err != nil {
 			break
