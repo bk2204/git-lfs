@@ -38,7 +38,7 @@ func (conn *PktlineConnection) End() error {
 	if err != nil {
 		return err
 	}
-	_, _, err = conn.ReadStatus(true)
+	_, _, err = conn.ReadStatus(false)
 	conn.cmd.Wait()
 	return err
 }
