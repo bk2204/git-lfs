@@ -108,7 +108,7 @@ quit-response = PKT-LINE("status 200" LF)
                 flush-pkt
 ```
 
-This command exists to help detect expected termination from unexpected
+This command exists to help distinguish expected termination from unexpected
 termination.
 
 ### Requests to transfer objects
