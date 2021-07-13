@@ -69,7 +69,7 @@ type lockData struct {
 }
 
 func (c *sshLockClient) lockDataIsIncomplete(data *lockData) bool {
-	return data.lock.Path == "" || data.lock.Owner == nil || data.lock.LockedAt.IsZero() || data.who == ownerUnknown
+	return data.lock.Path == "" || data.lock.Owner == nil || data.lock.LockedAt.IsZero()
 }
 
 func (c *sshLockClient) parseListLockResponse(status int, args []string, lines []string) (all []Lock, ours []Lock, theirs []Lock, nextCursor string, message string, err error) {
