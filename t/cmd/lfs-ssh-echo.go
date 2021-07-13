@@ -60,16 +60,12 @@ func main() {
 		offset = 2
 	} else if os.Args[1] == "git@127.0.0.1" {
 		offset = 1
-	} else {
-		if os.Args[1] != "-p" {
-			fmt.Fprintf(os.Stderr, "$1 expected \"-p\", got %q", os.Args[1])
-			os.Exit(1)
-		}
-
-		if os.Args[3] != "--" {
-			fmt.Fprintf(os.Stderr, "$3 expected \"--\", got %q", os.Args[3])
-			os.Exit(1)
-		}
+	} else if os.Args[1] != "-p" {
+		fmt.Fprintf(os.Stderr, "$1 expected \"-p\", got %q", os.Args[1])
+		os.Exit(1)
+	} else if os.Args[3] != "--" {
+		fmt.Fprintf(os.Stderr, "$3 expected \"--\", got %q", os.Args[3])
+		os.Exit(1)
 	}
 
 	if len(os.Args) < offset+2 {
