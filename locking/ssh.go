@@ -151,7 +151,7 @@ func (c *sshLockClient) Lock(remote string, lockReq *lockRequest) (*lockResponse
 	if err != nil {
 		return nil, 0, err
 	}
-	status, args, text, err := conn.ReadStatusWithArguments()
+	status, args, text, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return nil, status, err
 
@@ -173,7 +173,7 @@ func (c *sshLockClient) Unlock(ref *git.Ref, remote, id string, force bool) (*un
 	if err != nil {
 		return nil, 0, err
 	}
-	status, args, text, err := conn.ReadStatusWithArguments()
+	status, args, text, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return nil, status, err
 
@@ -196,7 +196,7 @@ func (c *sshLockClient) Search(remote string, searchReq *lockSearchRequest) (*lo
 	if err != nil {
 		return nil, 0, err
 	}
-	status, args, text, err := conn.ReadStatusWithArguments()
+	status, args, text, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return nil, status, err
 	}
@@ -230,7 +230,7 @@ func (c *sshLockClient) SearchVerifiable(remote string, vreq *lockVerifiableRequ
 	if err != nil {
 		return nil, 0, err
 	}
-	status, args, text, err := conn.ReadStatusWithArguments()
+	status, args, text, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return nil, status, err
 	}
