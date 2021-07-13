@@ -18,12 +18,12 @@ import (
 	"github.com/rubyist/tracerx"
 )
 
-type SSHBatchTransferAdapter struct {
+type SSHBatchClient struct {
 	maxRetries int
 	transfer   *ssh.SSHTransfer
 }
 
-func (a *SSHBatchTransferAdapter) batchInternal(args []string, batchLines []string) (int, []string, []string, error) {
+func (a *SSHBatchClient) batchInternal(args []string, batchLines []string) (int, []string, []string, error) {
 	conn := a.transfer.Connection(0)
 	conn.Lock()
 	defer conn.Unlock()
@@ -39,7 +39,7 @@ func (a *SSHBatchTransferAdapter) batchInternal(args []string, batchLines []stri
 	return status, args, lines, err
 }
 
-func (a *SSHBatchTransferAdapter) Batch(remote string, bReq *batchRequest) (*BatchResponse, error) {
+func (a *SSHBatchClient) Batch(remote string, bReq *batchRequest) (*BatchResponse, error) {
 	bRes := &BatchResponse{TransferAdapterName: "ssh"}
 	if len(bReq.Objects) == 0 {
 		return bRes, nil
@@ -123,11 +123,11 @@ func (a *SSHBatchTransferAdapter) Batch(remote string, bReq *batchRequest) (*Bat
 	return bRes, nil
 }
 
-func (a *SSHBatchTransferAdapter) MaxRetries() int {
+func (a *SSHBatchClient) MaxRetries() int {
 	return a.maxRetries
 }
 
-func (a *SSHBatchTransferAdapter) SetMaxRetries(n int) {
+func (a *SSHBatchClient) SetMaxRetries(n int) {
 	a.maxRetries = n
 }
 
