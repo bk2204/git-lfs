@@ -38,7 +38,7 @@ func (conn *PktlineConnection) End() error {
 	if err != nil {
 		return err
 	}
-	_, _, err = conn.ReadStatus(false)
+	_, _, err = conn.ReadStatus()
 	conn.cmd.Wait()
 	return err
 }
@@ -61,12 +61,16 @@ func (conn *PktlineConnection) negotiateVersion() error {
 	if err != nil {
 		return errors.NewProtocolError("Unable to negotiate version with remote side (unable to send version)", err)
 	}
-	status, _, err := conn.ReadStatus(true)
+	status, args, _, err := conn.ReadStatusWithArguments()
 	if err != nil {
 		return errors.NewProtocolError("Unable to negotiate version with remote side (unable to read status)", err)
 	}
 	if status != 200 {
-		return errors.NewProtocolError(fmt.Sprintf("Unable to negotiate version with remote side (unexpected status %d)", status), nil)
+		text := "no error provided"
+		if len(args) > 0 {
+			text = fmt.Sprintf("server said: %q", args[0])
+		}
+		return errors.NewProtocolError(fmt.Sprintf("Unable to negotiate version with remote side (unexpected status %d; %s)", status, text), nil)
 	}
 	return nil
 }
@@ -146,10 +150,9 @@ func (conn *PktlineConnection) SendMessageWithData(command string, args []string
 	return conn.pl.WriteFlush()
 }
 
-func (conn *PktlineConnection) ReadStatus(delim bool) (int, []string, error) {
+func (conn *PktlineConnection) ReadStatus() (int, []string, error) {
 	args := make([]string, 0, 100)
 	status := 0
-	seenDelim := false
 	seenStatus := false
 	for {
 		s, pktLen, err := conn.pl.ReadPacketTextWithLength()
@@ -160,14 +163,8 @@ func (conn *PktlineConnection) ReadStatus(delim bool) (int, []string, error) {
 		case pktLen == 0:
 			if !seenStatus {
 				return 0, nil, errors.NewProtocolError("no status seen", nil)
-			} else if !seenDelim {
-				return 0, nil, errors.NewProtocolError("no delimiter seen", nil)
 			}
 			return status, args, nil
-		case pktLen == 1:
-			seenDelim = true
-		case seenDelim:
-			args = append(args, s)
 		case !seenStatus:
 			ok := false
 			if strings.HasPrefix(s, "status ") {
@@ -177,13 +174,9 @@ func (conn *PktlineConnection) ReadStatus(delim bool) (int, []string, error) {
 			if !ok {
 				return 0, nil, errors.NewProtocolError(fmt.Sprintf("expected status line, got %q", s), err)
 			}
-			if !delim {
-				seenDelim = true
-			}
 			seenStatus = true
 		default:
-			// Otherwise, this is an optional argument which we are
-			// ignoring.
+			return 0, nil, errors.NewProtocolError(fmt.Sprintf("unexpected data, got %q", s), err)
 		}
 	}
 }
