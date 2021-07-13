@@ -253,13 +253,13 @@ func (a *SSHAdapter) verifyUpload(t *Transfer, conn *ssh.PktlineConnection) erro
 	if err != nil {
 		return err
 	}
-	status, _, text, err := conn.ReadStatusWithLines()
+	status, _, lines, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return err
 	}
 	if status < 200 || status > 299 {
-		if len(text) > 0 {
-			return fmt.Errorf("got status %d when verifying upload OID %s: %s", status, t.Oid, text[0])
+		if len(lines) > 0 {
+			return fmt.Errorf("got status %d when verifying upload OID %s: %s", status, t.Oid, lines[0])
 		}
 		return fmt.Errorf("got status %d when verifying upload OID %s", status, t.Oid)
 	}
