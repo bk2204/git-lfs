@@ -19,7 +19,7 @@ func (c *sshLockClient) connection() *ssh.PktlineConnection {
 	return c.transfer.Connection(0)
 }
 
-func (c *sshLockClient) parseLockResponse(status int, args []string, text []string) (*Lock, string, error) {
+func (c *sshLockClient) parseLockResponse(status int, args []string, lines []string) (*Lock, string, error) {
 	var lock *Lock
 	var message string
 	var err error
@@ -49,8 +49,8 @@ func (c *sshLockClient) parseLockResponse(status int, args []string, text []stri
 			return nil, "", fmt.Errorf("incomplete fields for lock")
 		}
 	}
-	if status > 299 && len(text) > 0 {
-		message = text[0]
+	if status > 299 && len(lines) > 0 {
+		message = lines[0]
 	}
 	return lock, message, nil
 }
@@ -72,7 +72,7 @@ func (c *sshLockClient) lockDataIsIncomplete(data *lockData) bool {
 	return data.lock.Path == "" || data.lock.Owner == nil || data.lock.LockedAt.IsZero() || data.who == ownerUnknown
 }
 
-func (c *sshLockClient) parseListLockResponse(status int, args []string, text []string) (all []Lock, ours []Lock, theirs []Lock, nextCursor string, message string, err error) {
+func (c *sshLockClient) parseListLockResponse(status int, args []string, lines []string) (all []Lock, ours []Lock, theirs []Lock, nextCursor string, message string, err error) {
 	locks := make(map[string]*lockData)
 	var last *lockData
 	if status >= 200 && status <= 299 {
@@ -84,7 +84,7 @@ func (c *sshLockClient) parseListLockResponse(status int, args []string, text []
 				nextCursor = entry[12:]
 			}
 		}
-		for _, entry := range text {
+		for _, entry := range lines {
 			values := strings.SplitN(entry, " ", 3)
 			var cmd string
 			if len(values) > 0 {
@@ -132,8 +132,8 @@ func (c *sshLockClient) parseListLockResponse(status int, args []string, text []
 				theirs = append(theirs, lock.lock)
 			}
 		}
-	} else if status > 299 && len(text) > 0 {
-		message = text[0]
+	} else if status > 299 && len(lines) > 0 {
+		message = lines[0]
 	}
 	return all, ours, theirs, nextCursor, message, nil
 }
@@ -151,13 +151,13 @@ func (c *sshLockClient) Lock(remote string, lockReq *lockRequest) (*lockResponse
 	if err != nil {
 		return nil, 0, err
 	}
-	status, args, text, err := conn.ReadStatusWithLines()
+	status, args, lines, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return nil, status, err
 
 	}
 	var lock lockResponse
-	lock.Lock, lock.Message, err = c.parseLockResponse(status, args, text)
+	lock.Lock, lock.Message, err = c.parseLockResponse(status, args, lines)
 	return &lock, status, err
 }
 
@@ -173,13 +173,13 @@ func (c *sshLockClient) Unlock(ref *git.Ref, remote, id string, force bool) (*un
 	if err != nil {
 		return nil, 0, err
 	}
-	status, args, text, err := conn.ReadStatusWithLines()
+	status, args, lines, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return nil, status, err
 
 	}
 	var lock unlockResponse
-	lock.Lock, lock.Message, err = c.parseLockResponse(status, args, text)
+	lock.Lock, lock.Message, err = c.parseLockResponse(status, args, lines)
 	return &lock, status, err
 }
 
@@ -196,11 +196,11 @@ func (c *sshLockClient) Search(remote string, searchReq *lockSearchRequest) (*lo
 	if err != nil {
 		return nil, 0, err
 	}
-	status, args, text, err := conn.ReadStatusWithLines()
+	status, args, lines, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return nil, status, err
 	}
-	locks, _, _, nextCursor, message, err := c.parseListLockResponse(status, args, text)
+	locks, _, _, nextCursor, message, err := c.parseListLockResponse(status, args, lines)
 	if err != nil {
 		return nil, status, err
 	}
@@ -230,11 +230,11 @@ func (c *sshLockClient) SearchVerifiable(remote string, vreq *lockVerifiableRequ
 	if err != nil {
 		return nil, 0, err
 	}
-	status, args, text, err := conn.ReadStatusWithLines()
+	status, args, lines, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return nil, status, err
 	}
-	_, ours, theirs, nextCursor, message, err := c.parseListLockResponse(status, args, text)
+	_, ours, theirs, nextCursor, message, err := c.parseListLockResponse(status, args, lines)
 	if err != nil {
 		return nil, status, err
 	}
