@@ -61,7 +61,7 @@ func (conn *PktlineConnection) negotiateVersion() error {
 	if err != nil {
 		return errors.NewProtocolError("Unable to negotiate version with remote side (unable to send version)", err)
 	}
-	status, args, _, err := conn.ReadStatusWithArguments()
+	status, args, _, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return errors.NewProtocolError("Unable to negotiate version with remote side (unable to read status)", err)
 	}
@@ -218,7 +218,7 @@ func (conn *PktlineConnection) ReadStatusWithData() (int, []string, io.Reader, e
 }
 
 // ReadStatusWithArguments reads a status, arguments, and a set of text lines.
-func (conn *PktlineConnection) ReadStatusWithArguments() (int, []string, []string, error) {
+func (conn *PktlineConnection) ReadStatusWithLines() (int, []string, []string, error) {
 	args := make([]string, 0, 100)
 	lines := make([]string, 0, 100)
 	status := 0
