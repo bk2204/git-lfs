@@ -81,7 +81,7 @@ func main() {
 	// just "git-lfs-(authenticate|transfer) REPO OPERATION" or "git-(upload|receive)-pack REPO"
 	remoteCmd := strings.Split(os.Args[offset+1], " ")
 	if len(remoteCmd) < 2 {
-		fmt.Fprintf(os.Stderr, "bad git-lfs-authenticate line: %s\nargs: %v", remoteCmd, os.Args)
+		fmt.Fprintf(os.Stderr, "bad command line: %s\nargs: %v", remoteCmd, os.Args)
 		os.Exit(1)
 	}
 
