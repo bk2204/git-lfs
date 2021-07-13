@@ -114,7 +114,6 @@ begin_test "batch transfers with ssh endpoint (git-lfs-authenticate)"
   git lfs env
 
   contents="test"
-  oid="$(calc_oid "$contents")"
   git lfs track "*.dat"
   printf "%s" "$contents" > test.dat
   git add .gitattributes test.dat
@@ -136,10 +135,8 @@ begin_test "batch transfers with ssh endpoint (git-lfs-transfer)"
 
   sshurl=$(ssh_remote "$reponame")
   git config lfs.url "$sshurl"
-  git lfs env
 
   contents="test"
-  oid="$(calc_oid "$contents")"
   git lfs track "*.dat"
   printf "%s" "$contents" > test.dat
   git add .gitattributes test.dat
@@ -147,7 +144,7 @@ begin_test "batch transfers with ssh endpoint (git-lfs-transfer)"
 
   git push origin main 2>&1
   cd ..
-  GIT_TRACE=1 git clone $sshurl "$reponame-2" 2>&1 | tee trace.log
+  GIT_TRACE=1 git clone "$sshurl" "$reponame-2" 2>&1 | tee trace.log
   grep "lfs-ssh-echo.*git-lfs-transfer .*$reponame.git download" trace.log
   cd "$reponame-2"
   git lfs fsck
