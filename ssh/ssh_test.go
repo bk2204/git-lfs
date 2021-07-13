@@ -27,22 +27,6 @@ func TestSSHGetLFSExeAndArgs(t *testing.T) {
 		"git-lfs-authenticate user/repo download",
 	}, args)
 
-	exe, args = ssh.GetLFSExeAndArgs(cli.OSEnv(), cli.GitEnv(), &meta, "download", "GET")
-	assert.Equal(t, "ssh", exe)
-	assert.Equal(t, []string{
-		"--",
-		"user@foo.com",
-		"git-lfs-authenticate user/repo download",
-	}, args)
-
-	exe, args = ssh.GetLFSExeAndArgs(cli.OSEnv(), cli.GitEnv(), &meta, "download", "GET")
-	assert.Equal(t, "ssh", exe)
-	assert.Equal(t, []string{
-		"--",
-		"user@foo.com",
-		"git-lfs-authenticate user/repo download",
-	}, args)
-
 	exe, args = ssh.GetLFSExeAndArgs(cli.OSEnv(), cli.GitEnv(), &meta, "upload", "GET")
 	assert.Equal(t, "ssh", exe)
 	assert.Equal(t, []string{
