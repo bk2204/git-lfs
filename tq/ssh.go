@@ -348,10 +348,8 @@ func (a *SSHAdapter) argumentsForTransfer(t *Transfer, action string) []string {
 	return args
 }
 
-// Begin a new batch of uploads or downloads. Call this first, followed by
-// one or more Add calls. maxConcurrency controls the number of transfers
-// that may be done at once. The passed in callback will receive updates on
-// progress. Either argument may be nil if not required by the client.
+// Begin a new batch of uploads or downloads. Call this first, followed by one
+// or more Add calls. The passed in callback will receive updates on progress.
 func (a *SSHAdapter) Begin(cfg AdapterConfig, cb ProgressCallback) error {
 	if err := a.adapterBase.Begin(cfg, cb); err != nil {
 		return err
