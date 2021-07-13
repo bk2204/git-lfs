@@ -235,8 +235,6 @@ func (conn *PktlineConnection) ReadStatusWithLines() (int, []string, []string, e
 				return 0, nil, nil, errors.NewProtocolError("no status seen", nil)
 			}
 			return status, args, lines, nil
-		case pktLen == 1:
-			seenDelim = true
 		case seenDelim:
 			lines = append(lines, s)
 		case !seenStatus:
@@ -249,6 +247,11 @@ func (conn *PktlineConnection) ReadStatusWithLines() (int, []string, []string, e
 				return 0, nil, nil, errors.NewProtocolError(fmt.Sprintf("expected status line, got %q", s), err)
 			}
 			seenStatus = true
+		case pktLen == 1:
+			if seenDelim {
+				return 0, nil, nil, errors.NewProtocolError("unexpected delimiter packet", nil)
+			}
+			seenDelim = true
 		default:
 			args = append(args, s)
 		}
