@@ -32,7 +32,7 @@ func (a *SSHBatchTransferAdapter) batchInternal(args []string, batchLines []stri
 		return 0, nil, nil, errors.Wrap(err, "batch request")
 	}
 
-	status, args, lines, err := conn.ReadStatusWithArguments()
+	status, args, lines, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return status, nil, nil, errors.Wrap(err, "batch response")
 	}
@@ -255,7 +255,7 @@ func (a *SSHAdapter) verifyUpload(t *Transfer, conn *ssh.PktlineConnection) erro
 	if err != nil {
 		return err
 	}
-	status, _, text, err := conn.ReadStatusWithArguments()
+	status, _, text, err := conn.ReadStatusWithLines()
 	if err != nil {
 		return err
 	}
@@ -289,7 +289,7 @@ func (a *SSHAdapter) doUpload(t *Transfer, conn *ssh.PktlineConnection, f *os.Fi
 	if err != nil {
 		return 0, nil, nil, err
 	}
-	return conn.ReadStatusWithArguments()
+	return conn.ReadStatusWithLines()
 }
 
 // upload starts an upload.
