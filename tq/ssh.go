@@ -306,7 +306,7 @@ func (a *SSHAdapter) upload(t *Transfer, conn *ssh.PktlineConnection, cb Progres
 	}
 	defer f.Close()
 
-	status, _, text, err := a.doUpload(t, conn, f, cb)
+	status, _, lines, err := a.doUpload(t, conn, f, cb)
 	if err != nil {
 		return err
 	}
@@ -322,8 +322,8 @@ func (a *SSHAdapter) upload(t *Transfer, conn *ssh.PktlineConnection, cb Progres
 			return errors.NewRetriableError(fmt.Errorf("got status %d when uploading OID %s", status, t.Oid))
 		}
 
-		if len(text) > 0 {
-			return fmt.Errorf("got status %d when uploading OID %s: %s", status, t.Oid, text[0])
+		if len(lines) > 0 {
+			return fmt.Errorf("got status %d when uploading OID %s: %s", status, t.Oid, lines[0])
 		}
 		return fmt.Errorf("got status %d when uploading OID %s", status, t.Oid)
 
