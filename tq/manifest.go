@@ -32,7 +32,7 @@ type Manifest struct {
 	fs                      *fs.Filesystem
 	apiClient               *lfsapi.Client
 	sshTransfer             *ssh.SSHTransfer
-	batchClientAdapter      BatchTransferAdapter
+	batchClientAdapter      BatchClient
 	mu                      sync.Mutex
 }
 
@@ -56,7 +56,7 @@ func (m *Manifest) IsStandaloneTransfer() bool {
 	return m.standaloneTransferAgent != ""
 }
 
-func (m *Manifest) batchClient() BatchTransferAdapter {
+func (m *Manifest) batchClient() BatchClient {
 	if r := m.MaxRetries(); r > 0 {
 		m.batchClientAdapter.SetMaxRetries(r)
 	}

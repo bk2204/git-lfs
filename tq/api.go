@@ -32,12 +32,6 @@ type BatchResponse struct {
 	endpoint            lfshttp.Endpoint
 }
 
-type BatchTransferAdapter interface {
-	Batch(remote string, bReq *batchRequest) (*BatchResponse, error)
-	MaxRetries() int
-	SetMaxRetries(n int)
-}
-
 func Batch(m *Manifest, dir Direction, remote string, remoteRef *git.Ref, objects []*Transfer) (*BatchResponse, error) {
 	if len(objects) == 0 {
 		return &BatchResponse{}, nil
@@ -49,6 +43,12 @@ func Batch(m *Manifest, dir Direction, remote string, remoteRef *git.Ref, object
 		TransferAdapterNames: m.GetAdapterNames(dir),
 		Ref:                  &batchRef{Name: remoteRef.Refspec()},
 	})
+}
+
+type BatchClient interface {
+	Batch(remote string, bReq *batchRequest) (*BatchResponse, error)
+	MaxRetries() int
+	SetMaxRetries(n int)
 }
 
 func (c *tqClient) MaxRetries() int {
