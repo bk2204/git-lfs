@@ -302,7 +302,7 @@ func (a *SSHAdapter) upload(t *Transfer, conn *ssh.PktlineConnection, cb Progres
 
 	f, err := os.OpenFile(t.Path, os.O_RDONLY, 0644)
 	if err != nil {
-		return errors.Wrap(err, "basic upload")
+		return errors.Wrap(err, "SSH upload")
 	}
 	defer f.Close()
 
