@@ -157,6 +157,25 @@ func TestSSHGetExeAndArgsTortoisePlink(t *testing.T) {
 	assert.Equal(t, []string{"-batch", "user@foo.com"}, args)
 }
 
+func TestSSHGetExeAndArgsPlinkCustomPortExplicitEnvironmentSsh(t *testing.T) {
+	plink := filepath.Join("Users", "joebloggs", "bin", "ssh")
+
+	cli, err := lfshttp.NewClient(lfshttp.NewContext(nil, map[string]string{
+		"GIT_SSH_COMMAND": "",
+		"GIT_SSH":         plink,
+		"GIT_SSH_VARIANT": "ssh",
+	}, nil))
+	require.Nil(t, err)
+
+	meta := ssh.SSHMetadata{}
+	meta.UserAndHost = "user@foo.com"
+	meta.Port = "8888"
+
+	exe, args := ssh.FormatArgs(ssh.GetExeAndArgs(cli.OSEnv(), cli.GitEnv(), &meta, false))
+	assert.Equal(t, plink, exe)
+	assert.Equal(t, []string{"-p", "8888", "--", "user@foo.com"}, args)
+}
+
 func TestSSHGetExeAndArgsTortoisePlinkCustomPort(t *testing.T) {
 	plink := filepath.Join("Users", "joebloggs", "bin", "tortoiseplink")
 
