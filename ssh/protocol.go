@@ -217,7 +217,7 @@ func (conn *PktlineConnection) ReadStatusWithData() (int, []string, io.Reader, e
 	return status, args, pktlineReader(conn.pl), nil
 }
 
-// ReadStatusWithArguments reads a status, arguments, and a set of text lines.
+// ReadStatusWithLines reads a status, arguments, and a set of text lines.
 func (conn *PktlineConnection) ReadStatusWithLines() (int, []string, []string, error) {
 	args := make([]string, 0, 100)
 	lines := make([]string, 0, 100)
